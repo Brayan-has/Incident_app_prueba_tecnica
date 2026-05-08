@@ -8,7 +8,7 @@ services:
       - .:/var/www
     depends_on:
       - mysql
-      # - redis
+      - redis
 
   mysql:
     image: mysql:8.0
@@ -21,14 +21,15 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-  # redis:
-  #   image: redis:7.2
-  #   container_name: redis_server
-  #   restart: always
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis_data:/data
+  redis:
+    image: redis:7.2
+    container_name: redis_server
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 volumes:
-  mysql_data: # redis_data:
+  mysql_data:
+  redis_data:
