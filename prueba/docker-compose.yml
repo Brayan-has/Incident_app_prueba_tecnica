@@ -1,14 +1,14 @@
 services:
-  app:
-    build: .
-    container_name: incidents_app
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/var/www
-    depends_on:
-      - mysql
-      - redis
+  # app:
+  #   build: .
+  #   container_name: incidents_app
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - .:/var/www
+  #   depends_on:
+  #     - mysql
+  #     - redis
 
   mysql:
     image: mysql:8.0
