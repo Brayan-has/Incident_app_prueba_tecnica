@@ -1,7 +1,7 @@
 FROM php:8.4-cli
 
 # =========================
-# DEPENDENCIAS
+# DEPENDENCIES
 # =========================
 RUN apt-get update && apt-get install -y \
     git \
@@ -39,4 +39,5 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 
-CMD php artisan serve --host=0.0.0.0 --port=8000
+
+CMD php artisan migrate --seed --force && php artisan serve --host=0.0.0.0 --port=8000

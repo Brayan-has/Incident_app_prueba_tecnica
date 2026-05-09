@@ -2,15 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependencias primero para aprovechar la caché de capas de Docker
+# Install dependencies first to leverage Docker layer caching
 COPY package*.json ./
 RUN npm install
 
-# Copiar el resto del código
+# Copy the rest of the application code
 COPY . .
 
-# Exponer el puerto por defecto de Vite
+# Expose the default Vite port
 EXPOSE 5173
 
-# Ejecutar en modo desarrollo con host expuesto para que Docker lo permita
+# Run in development mode with host exposed for Docker access
 CMD ["npm", "run", "dev", "--", "--host"]
