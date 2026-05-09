@@ -8,6 +8,7 @@ use App\Concerns\Traits\PaginationTrait;
 use App\Http\Requests\IncidentRequest;
 use App\Jobs\ChangeIncidentStatusToExpiredJob;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use App\Concerns\Traits\CacheTrait;
 use App\Concerns\Traits\filterTrait;
 use Spatie\Permission\Traits\HasRoles;
@@ -46,6 +47,11 @@ class IncidentController extends Controller
      */
     public function store(IncidentRequest $request)
     {
+        if(!auth()->user()->can('create-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to create an incident"
+            ], 403);
+        }
         $incident = Incident::create($request->validated());
         
         // Dispatch job to change status to expired when the expiration date is passed
@@ -53,7 +59,7 @@ class IncidentController extends Controller
         ChangeIncidentStatusToExpiredJob::dispatch($incident)->delay($expirationDate);
 
         // flush the cache
-        Cache::tags('incidents')->flush();
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
         
         return response()->json([
             'message' => 'Incident created successfully'
@@ -65,6 +71,11 @@ class IncidentController extends Controller
      */
     public function show($id)
     {
+        if(!auth()->user()->can('view-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to view an incident"
+            ], 403);
+        }
         $incident = Incident::with(['createdBy:id,name,email', 'assignedTo:id,name,email'])->find($id);
 
         // if theres no data return 404
@@ -88,6 +99,11 @@ class IncidentController extends Controller
      */
     public function update(IncidentRequest $request, $id)
     {
+        if(!auth()->user()->can('edit-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to edit an incident"
+            ], 403);
+        }
         $incident = Incident::with(['createdBy:id,name,email', 'assignedTo:id,name,email'])->find($id);
 
         // if theres no data return 404
@@ -100,7 +116,7 @@ class IncidentController extends Controller
         $incident->update($request->validated());
 
         // flush the cache
-        Cache::tags('incidents')->flush();
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
         
         $incident->save();
         
@@ -117,6 +133,11 @@ class IncidentController extends Controller
      */
     public function destroy($id)
     {
+        if(!auth()->user()->can('delete-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to delete an incident"
+            ], 403);
+        }
         $incident = Incident::find($id);
 
         // if theres no data return 404
@@ -129,7 +150,7 @@ class IncidentController extends Controller
         $incident->delete();
 
         // flush the cache
-        Cache::tags('incidents')->flush();
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
         
         return response()->json(
             [

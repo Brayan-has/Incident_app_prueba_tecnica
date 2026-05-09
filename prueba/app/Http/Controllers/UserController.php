@@ -9,6 +9,7 @@ use App\Concerns\Traits\CacheTrait;
 use App\Concerns\Traits\filterTrait;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Traits\HasRoles;
 
 
@@ -20,6 +21,13 @@ class UserController extends Controller
      */
     public function index(UserRequest $request)
     {
+        // check authorization
+        if(!auth()->user()->can('view-user')) {
+            return response()->json([
+                'message' => "You don't have permission to view a user"
+            ], 403);
+        }
+
         $query = User::query();
         
         // parameters for filtering the data
@@ -43,6 +51,13 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
+        // check authorization
+        if(!auth()->user()->can('create-user')) {
+            return response()->json([
+                'message' => "You don't have permission to create a user"
+            ], 403);
+        }
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -50,7 +65,7 @@ class UserController extends Controller
         ]);
 
         // flush the cache
-        Cache::tags('users')->flush();
+        Cache::supportsTags() ? Cache::tags('users')->flush() : Cache::flush();
         
         return response()->json([
             'message' => 'User created successfully',
@@ -62,6 +77,13 @@ class UserController extends Controller
      */
     public function show(UserRequest $request, string $id)
     {
+        // check authorization
+        if(!auth()->user()->can('view-user')) {
+            return response()->json([
+                'message' => "You don't have permission to view a user"
+            ], 403);
+        }
+
         $user = User::find($id);
 
         if (!$user) {
@@ -80,6 +102,13 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, string $id)
     {
+        // check authorization
+        if(!auth()->user()->can('edit-user')) {
+            return response()->json([
+                'message' => "You don't have permission to edit a user"
+            ], 403);
+        }
+
         $user = User::find($id);
 
         if (!$user) {
@@ -97,7 +126,7 @@ class UserController extends Controller
         $user->update($data);
         
         // flush the cache
-        Cache::tags('users')->flush();
+        Cache::supportsTags() ? Cache::tags('users')->flush() : Cache::flush();
         $user->save();
 
         return response()->json([
@@ -110,6 +139,13 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        // check authorization
+        if(!auth()->user()->can('delete-user')) {
+            return response()->json([
+                'message' => "You don't have permission to delete a user"
+            ], 403);
+        }
+
         $user = User::find($id);
 
         if (!$user) {
@@ -121,7 +157,7 @@ class UserController extends Controller
         $user->delete();
         
         // flush the cache
-        Cache::tags('users')->flush();
+        Cache::supportsTags() ? Cache::tags('users')->flush() : Cache::flush();
 
         return response()->json([
             'message' => 'User deleted successfully',

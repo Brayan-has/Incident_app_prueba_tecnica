@@ -38,9 +38,11 @@ Route::prefix('v1')->group(function () {
         // roles endpoints
         Route::get('roles', [RoleController::class, 'getAllRoles']);
         Route::post('roles/assign/{user_id}', [RoleController::class, 'assignRoleToUser']);
-        Route::get('roles/user', [RoleController::class, 'getRoleByUser']);
+        Route::get('roles/{user_id}', [RoleController::class, 'getRoleByUser']);
 
+        // permissions endpoints
         Route::get('permissions', [RoleController::class, 'getAllPermissions']);
+        Route::post('permissions/assign/{user_id}', [RoleController::class, 'assignPermission']);
 
 
     });

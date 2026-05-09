@@ -25,16 +25,27 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'delete-incident'])->assignRole($admin);
         Permission::create(['name' => 'view-incident'])->assignRole($admin, $incident_manager);
 
+
         // create permissions for user
         Permission::create(['name' => 'create-user'])->assignRole($admin);
         Permission::create(['name' => 'edit-user'])->assignRole($admin);
         Permission::create(['name' => 'delete-user'])->assignRole($admin);
-        Permission::create(['name' => 'view-user'])->assignRole($admin);
+        Permission::create(['name' => 'view-user'])->assignRole($admin, $incident_manager);
 
-        // create permissions for role and permissions
-        Permission::create(['name' => 'edit-role'])->assignRole($admin);
-        Permission::create(['name' => 'delete-role'])->assignRole($admin);
+        // create permissions for roles
         Permission::create(['name' => 'view-role'])->assignRole($admin);
+        Permission::create(['name' => 'assign-role'])->assignRole($admin);
+        Permission::create(['name' => 'get-user-role'])->assignRole($admin);
+
+        // create permissions for permissions
+        Permission::create(['name' => 'edit-permission'])->assignRole($admin);
+        Permission::create(['name' => 'delete-permission'])->assignRole($admin);
+        Permission::create(['name' => 'view-permission'])->assignRole($admin);
+        Permission::create(['name' => 'assign-permission'])->assignRole($admin);
+
+
+        
+
 
     }
 }

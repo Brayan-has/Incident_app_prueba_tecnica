@@ -36,6 +36,17 @@ class User extends Authenticatable
         ];
     }
 
+    # hidde attributes from the query response
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_code',
+        'two_factor_secret',
+        'current_team_id',
+        'two_factor_confirmed_at',
+        'email_verified_at',
+    ];
+
     # relation for requests created by the user
     public function createdIncidents()
     {
