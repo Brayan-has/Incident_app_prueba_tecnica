@@ -38,6 +38,9 @@ return Application::configure(basePath: dirname(__DIR__))
                     "message" => "Method not allowed",
                     "method used" => $request->method()
                 ], 405),
+                $e instanceof \Illuminate\Auth\AuthenticationException => response()->json([
+    "message" => "Unauthenticated."
+], 401),
                 $e instanceof \BadMethodCallException => response()->json([
                     "message" => "This format is not allowed or is not working",
                     "error" => $e->getMessage()
