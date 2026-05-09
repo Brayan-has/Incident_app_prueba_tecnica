@@ -14,8 +14,8 @@ return new class extends Migration
             $table->text('description');
             $table->enum('status', ['pending', 'in_progress', 'resolved', 'closed'])->default('pending');
             $table->enum('priority', ['low', 'medium', 'high', 'critical'])->default('medium');
-            $table->string('created_user');
-            $table->string('assigned_user')->nullable();
+            $table->foreignId('created_user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('assigned_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->date('expiration_date');
             $table->timestamps();
         });
