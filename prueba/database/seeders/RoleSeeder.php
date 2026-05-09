@@ -42,10 +42,5 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'delete-permission'])->assignRole($admin);
         Permission::create(['name' => 'view-permission'])->assignRole($admin);
         Permission::create(['name' => 'assign-permission'])->assignRole($admin);
-
-
-        
-
-
     }
 }

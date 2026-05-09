@@ -37,7 +37,7 @@ class UserRequest extends FormRequest
             case 'update':
                 return [
                     'name' => 'sometimes|string|max:255',
-                    'email' => 'sometimes|email|unique:users,email,' . $this->route('id'),
+                    'email' => 'sometimes|email|unique:users,email,' . $this->route('user'),
                     'password' => 'sometimes|string|min:8',
                 ];
             default:

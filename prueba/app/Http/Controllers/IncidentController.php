@@ -40,7 +40,7 @@ class IncidentController extends Controller
         $ttl = 60; 
 
 
-        $filter = ['id','title','description','status','created_by','assigned_to', 'expiration_date'];    
+        $filter = ['id', 'title', 'description', 'status', 'priority', 'created_user_id', 'assigned_user_id', 'expiration_date'];    
 
         return $this->cacheData($cacheKey, $ttl, $id, $query, $filter, $search, 'incidents');
     }

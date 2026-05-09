@@ -12,4 +12,12 @@ class Role extends Model
     protected $fillable = [
         'name',
     ];
+
+    protected $hidden = [
+        'pivot'
+    ];
+
+    protected $appends = [
+        'pivot'
+    ];
 }
