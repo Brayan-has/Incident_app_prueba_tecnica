@@ -26,6 +26,12 @@ class IncidentController extends Controller
     public function index()
     {
         $query = Incident::query()->with(['createdBy:id,name,email', 'assignedTo:id,name,email']);
+        
+        if (request("trashed") == "only") {
+            $query->onlyTrashed();
+        } elseif (request("trashed") == "with") {
+            $query->withTrashed();
+        }
         // search variable to filter many data with the only parameter search in the url
         $search = request("search");
         $id = request("id");
@@ -208,5 +214,69 @@ class IncidentController extends Controller
         $incidents = $this->paginate($incidents);
         
         return response()->json($incidents, 200);
+    }
+
+    /**
+     * Restore a soft-deleted incident.
+     */
+    public function restore($id)
+    {
+        if(!auth()->user()->can('edit-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to restore an incident"
+            ], 403);
+        }
+
+        $incident = Incident::withTrashed()->find($id);
+
+        if (!$incident) {
+            return response()->json([
+                'message' => 'Incident not found'
+            ], 404);
+        }
+
+        if (!$incident->trashed()) {
+            return response()->json([
+                'message' => 'Incident is not deleted'
+            ], 400);
+        }
+
+        $incident->restore();
+
+        // flush the cache
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
+
+        return response()->json([
+            'message' => 'Incident restored successfully'
+        ], 200);
+    }
+
+    /**
+     * Permanently delete an incident.
+     */
+    public function forceDelete($id)
+    {
+        if(!auth()->user()->can('delete-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to permanently delete an incident"
+            ], 403);
+        }
+
+        $incident = Incident::withTrashed()->find($id);
+
+        if (!$incident) {
+            return response()->json([
+                'message' => 'Incident not found'
+            ], 404);
+        }
+
+        $incident->forceDelete();
+
+        // flush the cache
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
+
+        return response()->json([
+            'message' => 'Incident permanently deleted'
+        ], 200);
     }
 }

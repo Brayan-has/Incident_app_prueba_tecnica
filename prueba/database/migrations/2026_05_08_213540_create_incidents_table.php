@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('assigned_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->date('expiration_date');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -30,6 +30,12 @@ class UserController extends Controller
 
         $query = User::query();
         
+        if (request("trashed") == "only") {
+            $query->onlyTrashed();
+        } elseif (request("trashed") == "with") {
+            $query->withTrashed();
+        }
+        
         // parameters for filtering the data
         $search = request("search");
         $id = request("id");
@@ -164,5 +170,67 @@ class UserController extends Controller
         ], 200);
     }
 
-  
+    /**
+     * Restore a soft-deleted user.
+     */
+    public function restore($id)
+    {
+        if(!auth()->user()->can('edit-user')) {
+            return response()->json([
+                'message' => "You don't have permission to restore a user"
+            ], 403);
+        }
+
+        $user = User::withTrashed()->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        if (!$user->trashed()) {
+            return response()->json([
+                'message' => 'User is not deleted'
+            ], 400);
+        }
+
+        $user->restore();
+
+        // flush the cache
+        Cache::supportsTags() ? Cache::tags('users')->flush() : Cache::flush();
+
+        return response()->json([
+            'message' => 'User restored successfully'
+        ], 200);
+    }
+
+    /**
+     * Permanently delete a user.
+     */
+    public function forceDelete($id)
+    {
+        if(!auth()->user()->can('delete-user')) {
+            return response()->json([
+                'message' => "You don't have permission to permanently delete a user"
+            ], 403);
+        }
+
+        $user = User::withTrashed()->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $user->forceDelete();
+
+        // flush the cache
+        Cache::supportsTags() ? Cache::tags('users')->flush() : Cache::flush();
+
+        return response()->json([
+            'message' => 'User permanently deleted'
+        ], 200);
+    }
 }
