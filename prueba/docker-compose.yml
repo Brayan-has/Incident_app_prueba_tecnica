@@ -1,14 +1,32 @@
 services:
-  # app:
-  #   build: .
-  #   container_name: incidents_app
-  #   ports:
-  #     - "8000:8000"
-  #   volumes:
-  #     - .:/var/www
-  #   depends_on:
-  #     - mysql
-  #     - redis
+  app:
+    build: .
+    container_name: incidents_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+      - APP_URL=http://localhost:8000
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: incidents_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    depends_on:
+      - app
 
   mysql:
     image: mysql:8.0

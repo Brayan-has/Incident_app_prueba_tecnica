@@ -15,37 +15,32 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // create roles
-        $admin = Role::create(['name' => 'admin']);
-        $incident_manager = Role::create(['name' => 'incident_manager']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $incident_manager = Role::firstOrCreate(['name' => 'incident_manager']);
 
 
         // create permissions for incident
-        Permission::create(['name' => 'create-incident'])->assignRole($admin, $incident_manager);
-        Permission::create(['name' => 'edit-incident'])->assignRole($admin, $incident_manager);
-        Permission::create(['name' => 'delete-incident'])->assignRole($admin);
-        Permission::create(['name' => 'view-incident'])->assignRole($admin, $incident_manager);
+        Permission::firstOrCreate(['name' => 'create-incident'])->assignRole($admin, $incident_manager);
+        Permission::firstOrCreate(['name' => 'edit-incident'])->assignRole($admin, $incident_manager);
+        Permission::firstOrCreate(['name' => 'delete-incident'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'view-incident'])->assignRole($admin, $incident_manager);
 
 
         // create permissions for user
-        Permission::create(['name' => 'create-user'])->assignRole($admin);
-        Permission::create(['name' => 'edit-user'])->assignRole($admin);
-        Permission::create(['name' => 'delete-user'])->assignRole($admin);
-        Permission::create(['name' => 'view-user'])->assignRole($admin, $incident_manager);
+        Permission::firstOrCreate(['name' => 'create-user'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'edit-user'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'delete-user'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'view-user'])->assignRole($admin, $incident_manager);
 
         // create permissions for roles
-        Permission::create(['name' => 'view-role'])->assignRole($admin);
-        Permission::create(['name' => 'assign-role'])->assignRole($admin);
-        Permission::create(['name' => 'get-user-role'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'view-role'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'assign-role'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'get-user-role'])->assignRole($admin);
 
         // create permissions for permissions
-        Permission::create(['name' => 'edit-permission'])->assignRole($admin);
-        Permission::create(['name' => 'delete-permission'])->assignRole($admin);
-        Permission::create(['name' => 'view-permission'])->assignRole($admin);
-        Permission::create(['name' => 'assign-permission'])->assignRole($admin);
-
-
-        
-
-
+        Permission::firstOrCreate(['name' => 'edit-permission'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'delete-permission'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'view-permission'])->assignRole($admin);
+        Permission::firstOrCreate(['name' => 'assign-permission'])->assignRole($admin);
     }
 }

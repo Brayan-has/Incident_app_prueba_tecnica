@@ -22,27 +22,23 @@ trait CacheTrait
     {
         $cacheInstance = Cache::supportsTags() ? Cache::tags($tag) : Cache::driver();
 
-        $pagination = $cacheInstance->remember($cacheKey, $ttl, function () use ($search, $id, $query, $filter) 
+        $data = $cacheInstance->remember($cacheKey, $ttl, function () use ($search, $id, $query, $filter) 
         {
-        
             // filter the data  
             $filteredQuery = $this->filterData($search, $query, $filter, $id);
     
             # paginate the data en return it the paginated
             $endpointDataPagination = $filteredQuery->paginate(10);
-            $endpoinPaginated = $this->paginate($endpointDataPagination);
-    
-            // check if ther's data
-            if (empty($endpoinPaginated['data']))
-            {
-                return response()->json(['message' => 'No data found'], 404);
-            }
-
-            return $endpoinPaginated;
-
+            return $this->paginate($endpointDataPagination);
         });
 
-        return $pagination;
+        // check if ther's data
+        if (empty($data['data']))
+        {
+            return response()->json(['message' => 'No data found'], 404);
+        }
+
+        return response()->json($data, 200);
 
     }
 }

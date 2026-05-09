@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Permission;
 use App\Models\User;
 use App\Concerns\Traits\PaginationTrait;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -78,6 +79,16 @@ class RoleController extends Controller
         }
         $permissions = Permission::paginate(10);
         return response()->json($this->paginate($permissions, 10), 200);
+    }
+
+    // Get current user role
+    public function getCurrentUserRole()
+    {
+        $user = Auth::user();
+
+        return response()->json([
+            'data' => $user->roles
+        ], 200);
     }
 
     // assign permission 

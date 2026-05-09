@@ -28,16 +28,22 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource('users', UserController::class);
+        Route::post('users/{id}/restore', [UserController::class, 'restore']);
+        Route::delete('users/{id}/force-delete', [UserController::class, 'forceDelete']);
 
+        // Static incident routes MUST come before apiResource to avoid {incident} wildcard capturing them
+        Route::get('incidents/dashboard', [IncidentController::class, 'dashboardData']);
+        Route::get('incidents/expired', [IncidentController::class,'incidentsExpired']);
         Route::get('incidents/status/{status_name}', [IncidentController::class,'incidentByStatus']);
 
-        Route::get('incidents/expired', [IncidentController::class,'incidentsExpired']);
-
         Route::apiResource('incidents', IncidentController::class);
+        Route::post('incidents/{id}/restore', [IncidentController::class, 'restore']);
+        Route::delete('incidents/{id}/force-delete', [IncidentController::class, 'forceDelete']);
 
         // roles endpoints
         Route::get('roles', [RoleController::class, 'getAllRoles']);
         Route::post('roles/assign/{user_id}', [RoleController::class, 'assignRoleToUser']);
+        Route::get('roles/me', [RoleController::class, 'getCurrentUserRole']);
         Route::get('roles/{user_id}', [RoleController::class, 'getRoleByUser']);
 
         // permissions endpoints

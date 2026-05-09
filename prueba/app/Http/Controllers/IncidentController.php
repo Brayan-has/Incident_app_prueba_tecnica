@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Cache;
 use App\Concerns\Traits\CacheTrait;
 use App\Concerns\Traits\filterTrait;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\User;
+use Auth;
+
 
 class IncidentController extends Controller
 {
@@ -23,6 +26,12 @@ class IncidentController extends Controller
     public function index()
     {
         $query = Incident::query()->with(['createdBy:id,name,email', 'assignedTo:id,name,email']);
+        
+        if (request("trashed") == "only") {
+            $query->onlyTrashed();
+        } elseif (request("trashed") == "with") {
+            $query->withTrashed();
+        }
         // search variable to filter many data with the only parameter search in the url
         $search = request("search");
         $id = request("id");
@@ -37,7 +46,7 @@ class IncidentController extends Controller
         $ttl = 60; 
 
 
-        $filter = ['id','title','description','status','created_by','assigned_to', 'expiration_date'];    
+        $filter = ['id', 'title', 'description', 'status', 'priority', 'created_user_id', 'assigned_user_id', 'expiration_date'];    
 
         return $this->cacheData($cacheKey, $ttl, $id, $query, $filter, $search, 'incidents');
     }
@@ -52,7 +61,19 @@ class IncidentController extends Controller
                 'message' => "You don't have permission to create an incident"
             ], 403);
         }
-        $incident = Incident::create($request->validated());
+        $validatedData = $request->validated();
+        $userLogged = Auth::user();
+        $userWithincident_managerRole = User::role("incident_manager")->get();
+        
+        $incident = Incident::create([
+            "title" => $validatedData["title"],
+            "description" => $validatedData["description"],
+            "status" => $validatedData["status"],
+            "priority" => $validatedData["priority"],
+            "created_user_id" => $userLogged->id,
+            "assigned_user_id" => $userWithincident_managerRole->first()?->id ,
+            "expiration_date" => $validatedData["expiration_date"],
+        ]);
         
         // Dispatch job to change status to expired when the expiration date is passed
         $expirationDate = Carbon::parse($incident->expiration_date)->endOfDay();
@@ -194,4 +215,85 @@ class IncidentController extends Controller
         
         return response()->json($incidents, 200);
     }
+
+    /**
+     * Restore a soft-deleted incident.
+     */
+    public function restore($id)
+    {
+        if(!auth()->user()->can('edit-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to restore an incident"
+            ], 403);
+        }
+
+        $incident = Incident::withTrashed()->find($id);
+
+        if (!$incident) {
+            return response()->json([
+                'message' => 'Incident not found'
+            ], 404);
+        }
+
+        if (!$incident->trashed()) {
+            return response()->json([
+                'message' => 'Incident is not deleted'
+            ], 400);
+        }
+
+        $incident->restore();
+
+        // flush the cache
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
+
+        return response()->json([
+            'message' => 'Incident restored successfully'
+        ], 200);
+    }
+
+    /**
+     * Permanently delete an incident.
+     */
+    public function forceDelete($id)
+    {
+        if(!auth()->user()->can('delete-incident')) {
+            return response()->json([
+                'message' => "You don't have permission to permanently delete an incident"
+            ], 403);
+        }
+
+        $incident = Incident::withTrashed()->find($id);
+
+        if (!$incident) {
+            return response()->json([
+                'message' => 'Incident not found'
+            ], 404);
+        }
+
+        $incident->forceDelete();
+
+        // flush the cache
+        Cache::supportsTags() ? Cache::tags('incidents')->flush() : Cache::flush();
+
+        return response()->json([
+            'message' => 'Incident permanently deleted'
+        ], 200);
+    }
+
+    // get the incidents data necessary for the dashboard
+    public function dashboardData()
+    {
+        $totalIncidents = Incident::count();
+        $totalPending = Incident::where('status', 'pending')->count();
+        $totalInProgress = Incident::where('status', 'in_progress')->count();
+        $totalResolved = Incident::where('status', 'resolved')->count();
+
+        return response()->json([
+            'totalIncidents' => $totalIncidents,
+            'totalPendingIncidents'   => $totalPending,
+            'totalInProgressIncidents'=> $totalInProgress,
+            'totalResolvedIncidents'  => $totalResolved,
+        ], 200);
+    }
+
 }
