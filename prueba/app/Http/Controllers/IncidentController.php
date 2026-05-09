@@ -279,4 +279,21 @@ class IncidentController extends Controller
             'message' => 'Incident permanently deleted'
         ], 200);
     }
+
+    // get the incidents data necessary for the dashboard
+    public function dashboardData()
+    {
+        $totalIncidents = Incident::count();
+        $totalPending = Incident::where('status', 'pending')->count();
+        $totalInProgress = Incident::where('status', 'in_progress')->count();
+        $totalResolved = Incident::where('status', 'resolved')->count();
+
+        return response()->json([
+            'totalIncidents' => $totalIncidents,
+            'totalPendingIncidents'   => $totalPending,
+            'totalInProgressIncidents'=> $totalInProgress,
+            'totalResolvedIncidents'  => $totalResolved,
+        ], 200);
+    }
+
 }

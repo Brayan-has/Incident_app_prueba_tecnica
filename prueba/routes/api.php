@@ -31,6 +31,8 @@ Route::prefix('v1')->group(function () {
         Route::post('users/{id}/restore', [UserController::class, 'restore']);
         Route::delete('users/{id}/force-delete', [UserController::class, 'forceDelete']);
 
+        // Static incident routes MUST come before apiResource to avoid {incident} wildcard capturing them
+        Route::get('incidents/dashboard', [IncidentController::class, 'dashboardData']);
         Route::get('incidents/expired', [IncidentController::class,'incidentsExpired']);
         Route::get('incidents/status/{status_name}', [IncidentController::class,'incidentByStatus']);
 
