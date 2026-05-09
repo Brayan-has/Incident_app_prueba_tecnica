@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use App\Models\Requests;
+use App\Models\Incident;
+
 
 #[Fillable(['name', 'email', 'password', 'current_team_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
@@ -35,14 +36,14 @@ class User extends Authenticatable
     }
 
     # relation for requests created by the user
-    public function createdRequests()
+    public function createdIncidents()
     {
-        return $this->hasMany(Requests::class, 'created_user_id');
+        return $this->hasMany(Incident::class, 'created_user_id');
     }
 
     # relation for requests assigned to the user
-    public function assignedRequests()
+    public function assignedIncidents()
     {
-        return $this->hasMany(Requests::class, 'assigned_user_id');
+        return $this->hasMany(Incident::class, 'assigned_user_id');
     }
 }
