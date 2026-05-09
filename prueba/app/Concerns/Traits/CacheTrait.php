@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Cache;
 
 trait CacheTrait
 {
+    
     /*
     
      function with the parameter:

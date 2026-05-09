@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -33,5 +34,14 @@ Route::prefix('v1')->group(function () {
         Route::get('incidents/expired', [IncidentController::class,'incidentsExpired']);
 
         Route::apiResource('incidents', IncidentController::class);
+
+        // roles endpoints
+        Route::get('roles', [RoleController::class, 'getAllRoles']);
+        Route::post('roles/assign/{user_id}', [RoleController::class, 'assignRoleToUser']);
+        Route::get('roles/user', [RoleController::class, 'getRoleByUser']);
+
+        Route::get('permissions', [RoleController::class, 'getAllPermissions']);
+
+
     });
 });
