@@ -48,6 +48,9 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // flush the cache
+        Cache::tags('users')->flush();
+        
         return response()->json([
             'message' => 'User created successfully',
         ], 201);
@@ -91,6 +94,10 @@ class UserController extends Controller
         }
 
         $user->update($data);
+        
+        // flush the cache
+        Cache::tags('users')->flush();
+        $user->save();
 
         return response()->json([
             'message' => 'User updated successfully',
@@ -111,6 +118,9 @@ class UserController extends Controller
         }
 
         $user->delete();
+        
+        // flush the cache
+        Cache::tags('users')->flush();
 
         return response()->json([
             'message' => 'User deleted successfully',

@@ -52,6 +52,9 @@ class IncidentController extends Controller
         $expirationDate = Carbon::parse($incident->expiration_date)->endOfDay();
         ChangeIncidentStatusToExpiredJob::dispatch($incident)->delay($expirationDate);
 
+        // flush the cache
+        Cache::tags('incidents')->flush();
+        
         return response()->json([
             'message' => 'Incident created successfully'
         ], 201);
@@ -95,6 +98,10 @@ class IncidentController extends Controller
         }
         
         $incident->update($request->validated());
+
+        // flush the cache
+        Cache::tags('incidents')->flush();
+        
         $incident->save();
         
         return response()->json(
@@ -120,6 +127,9 @@ class IncidentController extends Controller
         }
 
         $incident->delete();
+
+        // flush the cache
+        Cache::tags('incidents')->flush();
         
         return response()->json(
             [
