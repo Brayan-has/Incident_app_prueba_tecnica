@@ -11,6 +11,19 @@ services:
       - mysql
       - redis
 
+  frontend:
+    build:
+      context: ../../Front/prueba
+      dockerfile: Dockerfile
+    container_name: incidents_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../../Front/prueba:/app
+      - /app/node_modules
+    depends_on:
+      - app
+
   mysql:
     image: mysql:8.0
     container_name: mysql_server
