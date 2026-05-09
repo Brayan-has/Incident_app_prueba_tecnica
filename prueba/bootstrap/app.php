@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         
-        $exceptions->render(function (Throwable $e, Request $request) {
+        $exceptions->render(function (Throwable $e, \Illuminate\Http\Request $request) {
             
             $response = match(true) {
                 $e instanceof \App\Exceptions\CrudException => $e->render($request),

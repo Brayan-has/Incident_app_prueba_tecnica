@@ -12,6 +12,10 @@ Route::get('/user', function (Request $request) {
 Route::prefix('/v1')->group(function () {
     # users endpoints
     Route::apiResource('users', UserController::class);
+    # incidents by status
+    Route::get('incidents/status/{status_name}', [IncidentController::class, 'incidentByStatus']);
+    # incidents expired
+    Route::get('incidents/expired', [IncidentController::class, 'incidentsExpired']);
     # incidents endpoints
     Route::apiResource('incidents', IncidentController::class);
 });
