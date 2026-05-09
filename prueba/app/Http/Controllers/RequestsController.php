@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Requests;
+use App\Models\Request as RequestsModel;
 use Illuminate\Http\Request;
+
 
 class RequestsController extends Controller
 {
