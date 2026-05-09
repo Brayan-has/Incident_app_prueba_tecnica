@@ -5,30 +5,36 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Concerns\Traits\PaginationTrait;
+use App\Concerns\Traits\CacheTrait;
+use App\Concerns\Traits\filterTrait;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Hash;
 
+
 class UserController extends Controller
 {
-    use PaginationTrait;
+    use PaginationTrait, CacheTrait, filterTrait;
     /**
      * Display a listing of the resource.
      */
     public function index(UserRequest $request)
     {
-        $users = User::paginate(10);
+        $query = User::query();
+        
+        // parameters for filtering the data
+        $search = request("search");
+        $id = request("id");
+        $page = request("page", 1);
 
-        if ($users->isEmpty()) {
-            return response()->json([
-                'message' => 'No users found'
-            ], 404);
-        }
+        // cache key for caching the results of the query, it includes the page number, search term and id for filtering
+        $cacheKey = "user_page_{$page}_search_" . md5($search ?? 'none') . "_id_" . ($id ?? "none");
 
-        $pagination = $this->paginate($users);
+        // caching for 1 minute
+        $ttl = 60;
 
-        return response()->json([
-            $pagination
-        ], 200);
+        $filter = ['id', 'name', 'email'];
+
+        return $this->cacheData($cacheKey, $ttl, $id, $query, $filter, $search, 'users');        
     }
 
     /**

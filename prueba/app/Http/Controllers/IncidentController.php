@@ -8,28 +8,37 @@ use App\Concerns\Traits\PaginationTrait;
 use App\Http\Requests\IncidentRequest;
 use App\Jobs\ChangeIncidentStatusToExpiredJob;
 use Carbon\Carbon;
+use App\Concerns\Traits\CacheTrait;
+use App\Concerns\Traits\filterTrait;
+
 
 class IncidentController extends Controller
 {
-    use PaginationTrait;
+    use PaginationTrait,CacheTrait, filterTrait;
     
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $incidents = Incident::with(['createdBy:id,name,email', 'assignedTo:id,name,email'])->paginate(15);
+        $query = Incident::query()->with(['createdBy:id,name,email', 'assignedTo:id,name,email']);
+        // search variable to filter many data with the only parameter search in the url
+        $search = request("search");
+        $id = request("id");
 
-        // if theres no data return 404
-        if ($incidents->isEmpty()) {
-            return response()->json([
-                'message' => 'No incidents found'
-            ], 404);
-        }
+        // currect page for caching
+        $page = request("page", 1);
+
+        //cache key for caching the results of the query, it includes the page number, search term and id for filtering
+        $cacheKey = "project_page_{$page}_search_" . md5($search ?? 'none').  "_id_". ($id ?? "none");
         
-        $incidents = $this->paginate($incidents);
-        
-        return response()->json($incidents, 200);
+        // caching fo 1 minute
+        $ttl = 60; 
+
+
+        $filter = ['id','title','description','status','created_by','assigned_to', 'expiration_date'];    
+
+        return $this->cacheData($cacheKey, $ttl, $id, $query, $filter, $search, 'incidents');
     }
 
     /**
@@ -51,9 +60,9 @@ class IncidentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(IncidentRequest $request)
+    public function show($id)
     {
-        $incident = Incident::with(['createdBy:id,name,email', 'assignedTo:id,name,email'])->find($request->id);
+        $incident = Incident::with(['createdBy:id,name,email', 'assignedTo:id,name,email'])->find($id);
 
         // if theres no data return 404
         if (!$incident) {
