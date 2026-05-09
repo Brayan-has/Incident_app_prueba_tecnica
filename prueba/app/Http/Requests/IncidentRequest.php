@@ -33,8 +33,8 @@ class IncidentRequest extends FormRequest
                     'description' => 'required|string',
                     'status' => 'required|in:pending,in_progress,resolved,closed',
                     'priority' => 'required|in:low,medium,high,critical',
-                    'assigned_user_id' => 'nullable|exists:users,id',
-                    'created_user_id' => 'required|exists:users,id',
+                    'assigned_user_id' => 'sometimes|nullable|exists:users,id',
+                    'created_user_id' => 'sometimes|exists:users,id',
                     'expiration_date' => 'required|date',
                 ];
             case 'update':

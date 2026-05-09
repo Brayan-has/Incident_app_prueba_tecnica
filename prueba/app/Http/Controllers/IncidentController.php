@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Cache;
 use App\Concerns\Traits\CacheTrait;
 use App\Concerns\Traits\filterTrait;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\User;
+use Auth;
+
 
 class IncidentController extends Controller
 {
@@ -52,7 +55,19 @@ class IncidentController extends Controller
                 'message' => "You don't have permission to create an incident"
             ], 403);
         }
-        $incident = Incident::create($request->validated());
+        $validatedData = $request->validated();
+        $userLogged = Auth::user();
+        $userWithincident_managerRole = User::role("incident_manager")->get();
+        
+        $incident = Incident::create([
+            "title" => $validatedData["title"],
+            "description" => $validatedData["description"],
+            "status" => $validatedData["status"],
+            "priority" => $validatedData["priority"],
+            "created_user_id" => $userLogged->id,
+            "assigned_user_id" => $userWithincident_managerRole->first()?->id ,
+            "expiration_date" => $validatedData["expiration_date"],
+        ]);
         
         // Dispatch job to change status to expired when the expiration date is passed
         $expirationDate = Carbon::parse($incident->expiration_date)->endOfDay();
