@@ -9,11 +9,12 @@ use App\Concerns\Traits\CacheTrait;
 use App\Concerns\Traits\filterTrait;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
 
 
 class UserController extends Controller
 {
-    use PaginationTrait, CacheTrait, filterTrait;
+    use PaginationTrait, CacheTrait, filterTrait, HasRoles;
     /**
      * Display a listing of the resource.
      */

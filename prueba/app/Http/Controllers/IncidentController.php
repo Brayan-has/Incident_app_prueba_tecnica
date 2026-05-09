@@ -10,11 +10,11 @@ use App\Jobs\ChangeIncidentStatusToExpiredJob;
 use Carbon\Carbon;
 use App\Concerns\Traits\CacheTrait;
 use App\Concerns\Traits\filterTrait;
-
+use Spatie\Permission\Traits\HasRoles;
 
 class IncidentController extends Controller
 {
-    use PaginationTrait,CacheTrait, filterTrait;
+    use PaginationTrait,CacheTrait, filterTrait, HasRoles;
     
     /**
      * Display a listing of the resource.
