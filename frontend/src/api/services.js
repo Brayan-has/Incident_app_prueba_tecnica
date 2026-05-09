@@ -25,6 +25,7 @@ export const PermissionService = {
 }
 
 export const IncidentService = {
+  getDashboard: () => api.get('incidents/dashboard'),
   getAll: (page = 1, search = '', trashed = '') => api.get(`incidents?page=${page}&search=${search}&trashed=${trashed}`),
   getByStatus: (status) => api.get(`incidents/status/${status}`),
   getExpired: (page = 1) => api.get(`incidents/expired?page=${page}`),
